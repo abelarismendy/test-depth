@@ -1,0 +1,2 @@
+processor,gpu,os,os_version,file,time_avg,n,method
+Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.31,0.csv,0.012766640000154438,10,our_algorithm
