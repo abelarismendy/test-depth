@@ -14,6 +14,13 @@ def show_img (img):
     cv2.destroyAllWindows()
     return None
 
+def save_img (img, name):
+    # Changes format from float to uint8 as gradient
+    uint_img = np.array(img*255).astype('uint8')
+    grayImage = cv2.cvtColor(uint_img, cv2.COLOR_GRAY2BGR)
+    cv2.imwrite(name,grayImage)
+    return None
+
 #########################################
 # Import Depth Matrix 
 # datas= np.loadtxt("matrix.csv", delimiter=",", skiprows=0)

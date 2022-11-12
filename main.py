@@ -107,8 +107,14 @@ def main():
         np.savetxt(OUTPUT_FOLDER+"/"+method+file, img, delimiter=",", fmt="%d")
 
     f.close()
+    transform_csv_to_img()
 
-
+def transform_csv_to_img():
+    files = os.listdir(OUTPUT_FOLDER)
+    csv_files = [file for file in files if file.endswith(".csv")]
+    for file in csv_files:
+        data = np.loadtxt(OUTPUT_FOLDER+"/"+file, delimiter=",")
+        depth.save_img(data, IMG_FOLDER+"/"+file[:-4]+".png")
 
 if __name__ == '__main__':
     main()
