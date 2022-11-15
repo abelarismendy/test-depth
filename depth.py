@@ -37,8 +37,11 @@ centro_mano = (173,251)
 #Monitor
 # centro_mano = (127,137)
 
-fixed_threshold = 13
-scalar = 1.65
+fixed_threshold = 200
+scalar = 2
+
+# fixed_threshold = 180
+# scalar = 2
 
 
 def segmentate(image,bounds):
@@ -197,7 +200,7 @@ def segmentate_iterative(image, bounds):
 def object_border(image, bounds):
     result = np.zeros(image.shape)
     height, width = image.shape
-    x,y,w,h, = bounds
+    y,x,h,w, = bounds
     check_gradient = np.full(image.shape,False)
     # center = (x+w/2,y+h/2)
     center = centro_mano
@@ -209,7 +212,7 @@ def object_border(image, bounds):
     pixel = center
     bot = center
     #Iterate to the top until the gradient is too high
-    while pixel[0] + 1 < x+w:
+    while pixel[0] + 1 < h:
 
         pixel = (pixel[0]+1,pixel[1])
         dynamic_i_min = gradient/scalar
@@ -227,7 +230,7 @@ def object_border(image, bounds):
     top = center
 
     #Iterate to the bottom until the gradient is too high
-    while pixel[0] - 1 > x:
+    while pixel[0] - 1 > y:
 
         pixel = (pixel[0]-1,pixel[1])
         dynamic_i_min = gradient/scalar
@@ -245,7 +248,7 @@ def object_border(image, bounds):
     left = center
 
     #Iterate to the left until the gradient is too high
-    while pixel[1] - 1 > y:
+    while pixel[1] - 1 > x:
         pixel = (pixel[0],pixel[1]-1)
         dynamic_j_min = gradient/scalar
         dynamic_j_max = gradient*scalar
@@ -262,7 +265,7 @@ def object_border(image, bounds):
     right = center
 
     #Iterate to the right until the gradient is too high
-    while pixel[1] + 1 < y+h:
+    while pixel[1] + 1 < w:
         pixel = (pixel[0],pixel[1]+1)
         dynamic_j_min = gradient/scalar
         dynamic_j_max = gradient*scalar
@@ -279,7 +282,7 @@ def object_border(image, bounds):
     stack.append(top)
     while len(stack) > 0:
         pixel = stack.pop()
-        if pixel[0] + 1 < x+w and not check_gradient[pixel[0]+1][pixel[1]]:
+        if pixel[0] + 1 < h and not check_gradient[pixel[0]+1][pixel[1]]:
             #The pixel is inside the bounds and has not been checked
             dynamic_i_min = gradient[0]/scalar
             dynamic_i_max = gradient[0]*scalar
@@ -319,10 +322,10 @@ def object_border(image, bounds):
                 if top_gradient > fixed_threshold or right_gradient > fixed_threshold or left_gradient > fixed_threshold or dynamic_top_min < top_gradient < dynamic_top_max or dynamic_right_min < right_gradient < dynamic_right_max or dynamic_left_min < left_gradient < dynamic_left_max:
                     result[pixel[0]+1][pixel[1]] = 1
                     stack.append((pixel[0]+1,pixel[1]))
-            # else:
-            #     #The pixel is outside the gradient
-            #     result[pixel[0]+1][pixel[1]] = 0
-        if pixel[0] - 1 > x and not check_gradient[pixel[0]-1][pixel[1]]:
+            else:
+                #The pixel is outside the gradient
+                result[pixel[0]+1][pixel[1]] = 0
+        if pixel[0] - 1 > y and not check_gradient[pixel[0]-1][pixel[1]]:
             #The pixel is inside the bounds and has not been checked
             dynamic_i_min = gradient[0]/scalar
             dynamic_i_max = gradient[0]*scalar
@@ -362,10 +365,10 @@ def object_border(image, bounds):
                 if bot_gradient > fixed_threshold or right_gradient > fixed_threshold or left_gradient > fixed_threshold or dynamic_bot_min < bot_gradient < dynamic_bot_max or dynamic_right_min < right_gradient < dynamic_right_max or dynamic_left_min < left_gradient < dynamic_left_max:
                     result[pixel[0]-1][pixel[1]] = 1
                     stack.append((pixel[0]-1,pixel[1]))
-            # else:
-            #     #The pixel is outside the gradient
-            #     result[pixel[0]-1][pixel[1]] = 0
-        if pixel[1] + 1 < y+h and not check_gradient[pixel[0]][pixel[1]+1]:
+            else:
+                #The pixel is outside the gradient
+                result[pixel[0]-1][pixel[1]] = 0
+        if pixel[1] + 1 < w and not check_gradient[pixel[0]][pixel[1]+1]:
             #The pixel is inside the bounds and has not been checked
             dynamic_j_min = gradient[1]/scalar
             dynamic_j_max = gradient[1]*scalar
@@ -404,10 +407,10 @@ def object_border(image, bounds):
                 if top_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold or dynamic_top_min < top_gradient < dynamic_top_max or dynamic_right_min < right_gradient < dynamic_right_max or dynamic_bot_min < bot_gradient < dynamic_bot_max:
                     result[pixel[0]][pixel[1]+1] = 1
                     stack.append((pixel[0],pixel[1]+1))
-            # else:
-            #     #The pixel is outside the gradient
-            #     result[pixel[0]][pixel[1]+1] = 0
-        if pixel[1] - 1 > y and not check_gradient[pixel[0]][pixel[1]-1]:
+            else:
+                #The pixel is outside the gradient
+                result[pixel[0]][pixel[1]+1] = 0
+        if pixel[1] - 1 > x and not check_gradient[pixel[0]][pixel[1]-1]:
             #The pixel is inside the bounds and has not been checked
             dynamic_j_min = gradient[1]/scalar
             dynamic_j_max = gradient[1]*scalar
@@ -447,9 +450,9 @@ def object_border(image, bounds):
                 if top_gradient > fixed_threshold or left_gradient > fixed_threshold or bot_gradient > fixed_threshold or dynamic_top_min < top_gradient < dynamic_top_max or dynamic_left_min < left_gradient < dynamic_left_max or dynamic_bot_min < bot_gradient < dynamic_bot_max:
                     result[pixel[0]][pixel[1]-1] = 1
                     stack.append((pixel[0],pixel[1]-1))
-            # else:
-            #     #The pixel is outside the gradient
-            #     result[pixel[0]][pixel[1]-1] = 0
+            else:
+                #The pixel is outside the gradient
+                result[pixel[0]][pixel[1]-1] = 0
 
     return result
 
@@ -539,7 +542,7 @@ if __name__ == "__main__":
     data= np.loadtxt("src/depth/0.csv", delimiter=",", skiprows=0)
     t1 = time.time()
     # img = segmentate_iterative(data, (0,0,240,320))
-    img = object_border(data, (0,0,240,320))
+    img = object_border(data, (150,187,240,320))
     t2 = time.time()
     print(t2-t1)
     # show_img(data)
