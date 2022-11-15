@@ -1,16 +1,17 @@
-import os, platform, subprocess, re
+import os, platform, subprocess, re, sys
 from numba import jit, cuda
 import numpy as np
 from timeit import default_timer as timer
 import depth
 import csv
 
+
 DEPTH_FOLDER = "src/depth"
 OUTPUT_FOLDER = "src/output"
 IMG_FOLDER = "src/img"
 TESTS_FOLDER = "tests"
 TEST_FILENAME = "results.csv"
-N = 10
+
 
 def get_processor_name():
     if platform.system() == "Windows":
@@ -57,14 +58,16 @@ def get_gpu_name():
 #     print("with GPU:", timer()-start)
 
 
-def test_cpu(data):
-    img = depth.segmentate(data, (0,0,240,320))
+def test_cpu(data, method):
+    if method == "iterative":
+        img = depth.segmentate_iterative(data, (0,0,240,320))
+    else:
+        img = depth.segmentate(data, (0,0,240,320))
     return img
 
 
-@jit(target_backend='cuda', nopython = 'true')
 def test_gpu(data):
-    img = depth.segmentate_iterative(data, (0,0,240,320))
+    img = depth.segmentate_gpu(data, (0,0,240,320))
     return img
 
 
@@ -73,7 +76,8 @@ def main():
     gpu = get_gpu_name()
     os_name = platform.system()
     os_version = platform.platform()
-    method = "our_algorithm"
+    method = sys.argv[1]
+    N = int(sys.argv[2])
     print("Processor: ", proccesor)
     print("GPU: ", gpu)
     print("OS: ", os_name)
@@ -96,11 +100,23 @@ def main():
     csv_files = [file for file in files if file.endswith(".csv")]
     for file in csv_files:
         total = 0
-        for i in range(N):
+        for _ in range(N):
             data = np.loadtxt(DEPTH_FOLDER+"/"+file, delimiter=",")
-            start = timer()
-            img = test_cpu(data)
-            end = timer()
+            if method == "iterative":
+                start = timer()
+                img = test_cpu(data, method)
+                end = timer()
+            elif method == "gpu":
+                start = timer()
+                img = test_gpu(data)
+                end = timer()
+            elif method == "recursive":
+                start = timer()
+                img = test_cpu(data, method)
+                end = timer()
+            else:
+                print("Invalid method")
+                return
             total += end - start
         avg = total / N
         print("Time for file: ", file, " is: ", avg)

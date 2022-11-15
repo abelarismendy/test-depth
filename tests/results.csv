@@ -9,3 +9,13 @@ Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-st
 Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.06779719879978074,10,our_algorithm
 Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.04654035010007647,10,our_algorithm
 Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.017503080100141233,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.011649260300146125,10,iterative
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.011981292299969937,10,iterative
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.011796192700057873,10,iterative
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.015516217499680351,10,iterative
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.012348108300102467,10,iterative
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.014969644999837328,10,recursive
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.10322006560018053,10,gpu
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.1073067130999334,10,gpu
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.012251100300454709,10,iterative
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.012254759999996168,30,iterative
