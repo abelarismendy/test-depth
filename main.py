@@ -62,6 +62,11 @@ def test_cpu(data):
     return img
 
 
+@jit(target_backend='cuda', nopython = 'true')
+def test_gpu(data):
+    img = depth.segmentate_iterative(data, (0,0,240,320))
+    return img
+
 
 def main():
     proccesor = get_processor_name().strip()

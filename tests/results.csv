@@ -2,3 +2,10 @@ processor,gpu,os,os_version,file,time_avg,n,method
 Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.31,0.csv,0.012766640000154438,10,our_algorithm
 Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.31,0.csv,0.013046589900113759,10,our_algorithm
 Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.31,0.csv,0.013106900200000382,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.025686390299961205,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.0464610000999528,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.04108642310002324,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.02483580179941782,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.06779719879978074,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.04654035010007647,10,our_algorithm
+Intel(R) Core(TM) i3-10110U CPU @ 2.10GHz,N/A,Linux,Linux-5.15.68.1-microsoft-standard-WSL2-x86_64-with-glibc2.29,0.csv,0.017503080100141233,10,our_algorithm
