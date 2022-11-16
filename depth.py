@@ -129,12 +129,18 @@ def segmentate_iterative(image, bounds):
     result[centro_mano[0],centro_mano[1]] = 1
     check_gradient[center[0],center[1]] = True
     stack = [center]
+    i_gradient = 0
+    j_gradient = 0
     dynamic_i_min = 0
     dynamic_i_max = 0
     dynamic_j_min = 0
     dynamic_j_max = 0
 
     while len(stack) > 0:
+        dynamic_i_min = i_gradient/scalar
+        dynamic_i_max = i_gradient*scalar
+        dynamic_j_min = j_gradient/scalar
+        dynamic_j_max = j_gradient*scalar
         pixel = stack.pop()
         #Check right pixel
         if pixel[0] + 1 < x+w and not check_gradient[pixel[0]+1][pixel[1]]:
@@ -145,6 +151,7 @@ def segmentate_iterative(image, bounds):
             if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 result[pixel[0]+1][pixel[1]] = 1
+                i_gradient = new_gradient
                 stack.append((pixel[0]+1,pixel[1]))
             else:
                 #The pixel is outside the gradient
@@ -159,6 +166,7 @@ def segmentate_iterative(image, bounds):
             if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 result[pixel[0]-1][pixel[1]] = 1
+                i_gradient = new_gradient
                 stack.append((pixel[0]-1,pixel[1]))
             else:
                 #The pixel is outside the gradient
@@ -173,6 +181,7 @@ def segmentate_iterative(image, bounds):
             if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 result[pixel[0]][pixel[1]-1] = 1
+                j_gradient = new_gradient
                 stack.append((pixel[0],pixel[1]-1))
             else:
                 #The pixel is outside the gradient
@@ -187,6 +196,7 @@ def segmentate_iterative(image, bounds):
             if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 result[pixel[0]][pixel[1]+1] = 1
+                j_gradient = new_gradient
                 stack.append((pixel[0],pixel[1]+1))
             else:
                 #The pixel is outside the gradient
@@ -293,6 +303,7 @@ def object_border(image, bounds):
     # stack.append(top)
     border = False
     while len(stack) > 0:
+
         pixel = stack.pop()
         #Check left pixel
         if pixel[1] - 1 >= x and not check_gradient[pixel[0]][pixel[1]-1]:
