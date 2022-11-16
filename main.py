@@ -1,5 +1,4 @@
 import os, platform, subprocess, re, sys
-from numba import jit, cuda
 import numpy as np
 from timeit import default_timer as timer
 import depth
