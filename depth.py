@@ -2,6 +2,7 @@ import numpy as np
 import time
 import cv2
 import sys
+import threading
 
 sys.setrecursionlimit(76800)
 
@@ -295,259 +296,259 @@ def object_border(image, bounds):
 
     # print("right done",right)
 
-    stack = []
-    gradient = [0,0]
-    stack.append(bot)
-    # stack.append(right)
-    # stack.append(left)
-    # stack.append(top)
-    while len(stack) > 0:
+    def check_borders(start):
+        stack = []
+        gradient = [0,0]
+        stack.append(start)
+        while len(stack) > 0:
+            pixel = stack.pop()
+            #Check left pixel
+            if pixel[1] - 1 >= x and not check_gradient[pixel[0]][pixel[1]-1]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]][pixel[1]-1])
+                dynamic_j_min = gradient[1]/scalar
+                dynamic_j_max = gradient[1]*scalar
+                #The gradient of the pixel in x direction was already checked
+                check_gradient[pixel[0]][pixel[1]-1] = True
+                if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[1] = new_gradient
+                    # check the left, top and bottom of the pixel to know if it is a border pixel
+                    if pixel[1] - 2 >= x:
+                        left_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]][pixel[1]-2])
+                    else:
+                        left_gradient = fixed_threshold+1
+                    if pixel[0] - 1 >= y:
+                        top_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]-1][pixel[1]-1])
+                    else:
+                        top_gradient = fixed_threshold+1
+                    if pixel[0] + 1 < h:
+                        bot_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]+1][pixel[1]-1])
+                    else:
+                        bot_gradient = fixed_threshold+1
 
-        pixel = stack.pop()
-        #Check left pixel
-        if pixel[1] - 1 >= x and not check_gradient[pixel[0]][pixel[1]-1]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]][pixel[1]-1])
-            dynamic_j_min = gradient[1]/scalar
-            dynamic_j_max = gradient[1]*scalar
-            #The gradient of the pixel in x direction was already checked
-            check_gradient[pixel[0]][pixel[1]-1] = True
-            if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[1] = new_gradient
-                # check the left, top and bottom of the pixel to know if it is a border pixel
-                if pixel[1] - 2 >= x:
-                    left_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]][pixel[1]-2])
-                else:
-                    left_gradient = fixed_threshold+1
-                if pixel[0] - 1 >= y:
-                    top_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]-1][pixel[1]-1])
-                else:
-                    top_gradient = fixed_threshold+1
-                if pixel[0] + 1 < h:
-                    bot_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]+1][pixel[1]-1])
-                else:
-                    bot_gradient = fixed_threshold+1
-
-                if left_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold:
-                    result[pixel[0]][pixel[1]-1] = 1
-                    stack.append((pixel[0],pixel[1]-1))
+                    if left_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        result[pixel[0]][pixel[1]-1] = 1
+                        stack.append((pixel[0],pixel[1]-1))
 
 
-        #Check top pixel
-        if pixel[0] - 1 >= y and not check_gradient[pixel[0]-1][pixel[1]]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]-1][pixel[1]])
-            dynamic_i_min = gradient[0]/scalar
-            dynamic_i_max = gradient[0]*scalar
-            #The gradient of the pixel in y direction was already checked
-            check_gradient[pixel[0]-1][pixel[1]] = True
-            if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[0] = new_gradient
-                # check the top, left, right of the pixel to know if it is a border pixel
-                if pixel[0] - 2 >= y:
-                    top_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-2][pixel[1]])
-                else:
-                    top_gradient = fixed_threshold+1
-                if pixel[1] - 1 >= x:
-                    left_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-1][pixel[1]-1])
-                else:
-                    left_gradient = fixed_threshold+1
-                if pixel[1] + 1 < w:
-                    right_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-1][pixel[1]+1])
-                else:
-                    right_gradient = fixed_threshold+1
-                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold:
-                    result[pixel[0]-1][pixel[1]] = 1
-                    stack.append((pixel[0]-1,pixel[1]))
+            #Check top pixel
+            if pixel[0] - 1 >= y and not check_gradient[pixel[0]-1][pixel[1]]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]-1][pixel[1]])
+                dynamic_i_min = gradient[0]/scalar
+                dynamic_i_max = gradient[0]*scalar
+                #The gradient of the pixel in y direction was already checked
+                check_gradient[pixel[0]-1][pixel[1]] = True
+                if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[0] = new_gradient
+                    # check the top, left, right of the pixel to know if it is a border pixel
+                    if pixel[0] - 2 >= y:
+                        top_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-2][pixel[1]])
+                    else:
+                        top_gradient = fixed_threshold+1
+                    if pixel[1] - 1 >= x:
+                        left_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-1][pixel[1]-1])
+                    else:
+                        left_gradient = fixed_threshold+1
+                    if pixel[1] + 1 < w:
+                        right_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-1][pixel[1]+1])
+                    else:
+                        right_gradient = fixed_threshold+1
+                    if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold:
+                        result[pixel[0]-1][pixel[1]] = 1
+                        stack.append((pixel[0]-1,pixel[1]))
 
-        #Check right pixel
-        if pixel[1] + 1 < w and not check_gradient[pixel[0]][pixel[1]+1]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]][pixel[1]+1])
-            dynamic_j_min = gradient[1]/scalar
-            dynamic_j_max = gradient[1]*scalar
-            #The gradient of the pixel in x direction was already checked
-            check_gradient[pixel[0]][pixel[1]+1] = True
-            if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[1] = new_gradient
-                # check the right, top, bot pixels of the pixel to know if it is a border pixel
-                if pixel[1] + 2 < w:
-                    right_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]][pixel[1]+2])
-                else:
-                    right_gradient = fixed_threshold+1
-                if pixel[0] - 1 >= y:
-                    top_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]-1][pixel[1]+1])
-                else:
-                    top_gradient = fixed_threshold+1
-                if pixel[0] + 1 < h:
-                    bot_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]+1][pixel[1]+1])
-                else:
-                    bot_gradient = fixed_threshold+1
+            #Check right pixel
+            if pixel[1] + 1 < w and not check_gradient[pixel[0]][pixel[1]+1]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]][pixel[1]+1])
+                dynamic_j_min = gradient[1]/scalar
+                dynamic_j_max = gradient[1]*scalar
+                #The gradient of the pixel in x direction was already checked
+                check_gradient[pixel[0]][pixel[1]+1] = True
+                if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[1] = new_gradient
+                    # check the right, top, bot pixels of the pixel to know if it is a border pixel
+                    if pixel[1] + 2 < w:
+                        right_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]][pixel[1]+2])
+                    else:
+                        right_gradient = fixed_threshold+1
+                    if pixel[0] - 1 >= y:
+                        top_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]-1][pixel[1]+1])
+                    else:
+                        top_gradient = fixed_threshold+1
+                    if pixel[0] + 1 < h:
+                        bot_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]+1][pixel[1]+1])
+                    else:
+                        bot_gradient = fixed_threshold+1
 
-                if right_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold:
-                    result[pixel[0]][pixel[1]+1] = 1
-                    border = False
-                    stack.append((pixel[0],pixel[1]+1))
+                    if right_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        result[pixel[0]][pixel[1]+1] = 1
+                        border = False
+                        stack.append((pixel[0],pixel[1]+1))
 
-        #Check bottom pixel
-        if pixel[0] + 1 < h and not check_gradient[pixel[0]+1][pixel[1]]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]+1][pixel[1]])
-            dynamic_i_min = gradient[0]/scalar
-            dynamic_i_max = gradient[0]*scalar
-            #The gradient of the pixel in y direction was already checked
-            check_gradient[pixel[0]+1][pixel[1]] = True
-            if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[0] = new_gradient
-                # check the bottom, left, right pixels of the pixel to know if it is a border pixel
-                if pixel[0] + 2 < h:
-                    bot_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+2][pixel[1]])
-                else:
-                    bot_gradient = fixed_threshold+1
-                if pixel[1] - 1 >= x:
-                    left_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+1][pixel[1]-1])
-                else:
-                    left_gradient = fixed_threshold+1
-                if pixel[1] + 1 < w:
-                    right_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+1][pixel[1]+1])
-                else:
-                    right_gradient = fixed_threshold+1
+            #Check bottom pixel
+            if pixel[0] + 1 < h and not check_gradient[pixel[0]+1][pixel[1]]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]+1][pixel[1]])
+                dynamic_i_min = gradient[0]/scalar
+                dynamic_i_max = gradient[0]*scalar
+                #The gradient of the pixel in y direction was already checked
+                check_gradient[pixel[0]+1][pixel[1]] = True
+                if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[0] = new_gradient
+                    # check the bottom, left, right pixels of the pixel to know if it is a border pixel
+                    if pixel[0] + 2 < h:
+                        bot_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+2][pixel[1]])
+                    else:
+                        bot_gradient = fixed_threshold+1
+                    if pixel[1] - 1 >= x:
+                        left_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+1][pixel[1]-1])
+                    else:
+                        left_gradient = fixed_threshold+1
+                    if pixel[1] + 1 < w:
+                        right_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+1][pixel[1]+1])
+                    else:
+                        right_gradient = fixed_threshold+1
 
-                if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold:
-                    result[pixel[0]+1][pixel[1]] = 1
-                    stack.append((pixel[0]+1,pixel[1]))
+                    if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold:
+                        result[pixel[0]+1][pixel[1]] = 1
+                        stack.append((pixel[0]+1,pixel[1]))
 
-        # check top left corner
-        if pixel[0] - 1 >= y and pixel[1] - 1 >= x and not check_gradient[pixel[0]-1][pixel[1]-1]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]-1][pixel[1]-1])
-            dynamic_i_min = gradient[0]/scalar
-            dynamic_i_max = gradient[0]*scalar
-            dynamic_j_min = gradient[1]/scalar
-            dynamic_j_max = gradient[1]*scalar
-            #The gradient of the pixel in x and y direction was already checked
-            check_gradient[pixel[0]-1][pixel[1]-1] = True
-            if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[0] = new_gradient
-                gradient[1] = new_gradient
-                # check the top, left, right pixels of the pixel to know if it is a border pixel
+            # check top left corner
+            if pixel[0] - 1 >= y and pixel[1] - 1 >= x and not check_gradient[pixel[0]-1][pixel[1]-1]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]-1][pixel[1]-1])
+                dynamic_i_min = gradient[0]/scalar
+                dynamic_i_max = gradient[0]*scalar
+                dynamic_j_min = gradient[1]/scalar
+                dynamic_j_max = gradient[1]*scalar
+                #The gradient of the pixel in x and y direction was already checked
+                check_gradient[pixel[0]-1][pixel[1]-1] = True
+                if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[0] = new_gradient
+                    gradient[1] = new_gradient
+                    # check the top, left, right pixels of the pixel to know if it is a border pixel
 
-                if pixel[0] - 2 >= y:
-                    top_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-2][pixel[1]-1])
-                else:
-                    top_gradient = fixed_threshold+1
-                if pixel[1] - 2 >= x:
-                    left_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-1][pixel[1]-2])
-                else:
-                    left_gradient = fixed_threshold+1
+                    if pixel[0] - 2 >= y:
+                        top_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-2][pixel[1]-1])
+                    else:
+                        top_gradient = fixed_threshold+1
+                    if pixel[1] - 2 >= x:
+                        left_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-1][pixel[1]-2])
+                    else:
+                        left_gradient = fixed_threshold+1
 
-                right_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-1][pixel[1]])
+                    right_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-1][pixel[1]])
 
-                bot_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
+                    bot_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
 
-                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold:
-                    result[pixel[0]-1][pixel[1]-1] = 1
-                    stack.append((pixel[0]-1,pixel[1]-1))
+                    if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        result[pixel[0]-1][pixel[1]-1] = 1
+                        stack.append((pixel[0]-1,pixel[1]-1))
 
-        # check top right corner
-        if pixel[0] - 1 >= y and pixel[1] + 1 < w and not check_gradient[pixel[0]-1][pixel[1]+1]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]-1][pixel[1]+1])
-            dynamic_i_min = gradient[0]/scalar
-            dynamic_i_max = gradient[0]*scalar
-            dynamic_j_min = gradient[1]/scalar
-            dynamic_j_max = gradient[1]*scalar
-            #The gradient of the pixel in x and y direction was already checked
-            check_gradient[pixel[0]-1][pixel[1]+1] = True
-            if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[0] = new_gradient
-                gradient[1] = new_gradient
-                # check the top, left, right of the pixel to know if it is a border pixel
-                if pixel[0] - 2 >= y:
-                    top_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-2][pixel[1]+1])
-                else:
-                    top_gradient = fixed_threshold+1
+            # check top right corner
+            if pixel[0] - 1 >= y and pixel[1] + 1 < w and not check_gradient[pixel[0]-1][pixel[1]+1]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]-1][pixel[1]+1])
+                dynamic_i_min = gradient[0]/scalar
+                dynamic_i_max = gradient[0]*scalar
+                dynamic_j_min = gradient[1]/scalar
+                dynamic_j_max = gradient[1]*scalar
+                #The gradient of the pixel in x and y direction was already checked
+                check_gradient[pixel[0]-1][pixel[1]+1] = True
+                if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[0] = new_gradient
+                    gradient[1] = new_gradient
+                    # check the top, left, right of the pixel to know if it is a border pixel
+                    if pixel[0] - 2 >= y:
+                        top_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-2][pixel[1]+1])
+                    else:
+                        top_gradient = fixed_threshold+1
 
-                left_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-1][pixel[1]])
+                    left_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-1][pixel[1]])
 
-                if pixel[1] + 2 < w:
-                    right_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-1][pixel[1]+2])
-                else:
-                    right_gradient = fixed_threshold+1
+                    if pixel[1] + 2 < w:
+                        right_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-1][pixel[1]+2])
+                    else:
+                        right_gradient = fixed_threshold+1
 
-                bot_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]][pixel[1]+1])
+                    bot_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]][pixel[1]+1])
 
-                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold:
-                    result[pixel[0]-1][pixel[1]+1] = 1
-                    stack.append((pixel[0]-1,pixel[1]+1))
+                    if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        result[pixel[0]-1][pixel[1]+1] = 1
+                        stack.append((pixel[0]-1,pixel[1]+1))
 
-        # check bottom left corner
-        if pixel[0] + 1 < h and pixel[1] - 1 >= x and not check_gradient[pixel[0]+1][pixel[1]-1]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]+1][pixel[1]-1])
-            dynamic_i_min = gradient[0]/scalar
-            dynamic_i_max = gradient[0]*scalar
-            dynamic_j_min = gradient[1]/scalar
-            dynamic_j_max = gradient[1]*scalar
-            #The gradient of the pixel in x and y direction was already checked
-            check_gradient[pixel[0]+1][pixel[1]-1] = True
-            if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[0] = new_gradient
-                gradient[1] = new_gradient
-                # check the bot, left, right of the pixel to know if it is a border pixel
-                bot_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
+            # check bottom left corner
+            if pixel[0] + 1 < h and pixel[1] - 1 >= x and not check_gradient[pixel[0]+1][pixel[1]-1]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]+1][pixel[1]-1])
+                dynamic_i_min = gradient[0]/scalar
+                dynamic_i_max = gradient[0]*scalar
+                dynamic_j_min = gradient[1]/scalar
+                dynamic_j_max = gradient[1]*scalar
+                #The gradient of the pixel in x and y direction was already checked
+                check_gradient[pixel[0]+1][pixel[1]-1] = True
+                if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[0] = new_gradient
+                    gradient[1] = new_gradient
+                    # check the bot, left, right of the pixel to know if it is a border pixel
+                    bot_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
 
-                if pixel[1] - 2 >= x:
-                    left_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]+1][pixel[1]-2])
-                else:
-                    left_gradient = fixed_threshold+1
+                    if pixel[1] - 2 >= x:
+                        left_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]+1][pixel[1]-2])
+                    else:
+                        left_gradient = fixed_threshold+1
 
-                right_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]+1][pixel[1]])
+                    right_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]+1][pixel[1]])
 
-                top_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
+                    top_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
 
-                if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_gradient > fixed_threshold:
-                    result[pixel[0]+1][pixel[1]-1] = 1
-                    stack.append((pixel[0]+1,pixel[1]-1))
-        # check bottom right corner
-        if pixel[0] + 1 < h and pixel[1] + 1 < w and not check_gradient[pixel[0]+1][pixel[1]+1]:
-            #The pixel is inside the bounds and has not been checked
-            new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]+1][pixel[1]+1])
-            dynamic_i_min = gradient[0]/scalar
-            dynamic_i_max = gradient[0]*scalar
-            dynamic_j_min = gradient[1]/scalar
-            dynamic_j_max = gradient[1]*scalar
-            #The gradient of the pixel in x and y direction was already checked
-            check_gradient[pixel[0]+1][pixel[1]+1] = True
-            if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
-                #The pixel is inside the gradient and respects or is below the fixed threshold
-                gradient[0] = new_gradient
-                gradient[1] = new_gradient
-                # check the bot, left, right of the pixel to know if it is a border pixel
-                if pixel[0] + 2 < h:
-                    bot_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+2][pixel[1]+1])
-                else:
-                    bot_gradient = fixed_threshold+1
+                    if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_gradient > fixed_threshold:
+                        result[pixel[0]+1][pixel[1]-1] = 1
+                        stack.append((pixel[0]+1,pixel[1]-1))
+            # check bottom right corner
+            if pixel[0] + 1 < h and pixel[1] + 1 < w and not check_gradient[pixel[0]+1][pixel[1]+1]:
+                #The pixel is inside the bounds and has not been checked
+                new_gradient = abs(image[pixel[0]][pixel[1]] - image[pixel[0]+1][pixel[1]+1])
+                dynamic_i_min = gradient[0]/scalar
+                dynamic_i_max = gradient[0]*scalar
+                dynamic_j_min = gradient[1]/scalar
+                dynamic_j_max = gradient[1]*scalar
+                #The gradient of the pixel in x and y direction was already checked
+                check_gradient[pixel[0]+1][pixel[1]+1] = True
+                if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
+                    #The pixel is inside the gradient and respects or is below the fixed threshold
+                    gradient[0] = new_gradient
+                    gradient[1] = new_gradient
+                    # check the bot, left, right of the pixel to know if it is a border pixel
+                    if pixel[0] + 2 < h:
+                        bot_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+2][pixel[1]+1])
+                    else:
+                        bot_gradient = fixed_threshold+1
 
-                left_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+1][pixel[1]])
+                    left_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+1][pixel[1]])
 
-                if pixel[1] + 2 < w:
-                    right_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+1][pixel[1]+2])
-                else:
-                    right_gradient = fixed_threshold+1
+                    if pixel[1] + 2 < w:
+                        right_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+1][pixel[1]+2])
+                    else:
+                        right_gradient = fixed_threshold+1
 
-                    top_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]][pixel[1]+1])
+                        top_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]][pixel[1]+1])
 
-                if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_gradient > fixed_threshold:
-                    result[pixel[0]+1][pixel[1]+1] = 1
-                    stack.append((pixel[0]+1,pixel[1]+1))
+                    if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_gradient > fixed_threshold:
+                        result[pixel[0]+1][pixel[1]+1] = 1
+                        stack.append((pixel[0]+1,pixel[1]+1))
+
+    check_borders(top)
+
     return result
 
 
