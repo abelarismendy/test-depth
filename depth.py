@@ -296,7 +296,11 @@ def object_border(image, bounds):
 
     # print("right done",right)
 
-    def check_borders(start):
+
+
+
+    def check_borders(lock, start):
+        new_gradient = 0
         stack = []
         gradient = [0,0]
         stack.append(start)
@@ -309,7 +313,9 @@ def object_border(image, bounds):
                 dynamic_j_min = gradient[1]/scalar
                 dynamic_j_max = gradient[1]*scalar
                 #The gradient of the pixel in x direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]][pixel[1]-1] = True
+                lock.release()
                 if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[1] = new_gradient
@@ -328,7 +334,9 @@ def object_border(image, bounds):
                         bot_gradient = fixed_threshold+1
 
                     if left_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]][pixel[1]-1] = 1
+                        lock.release()
                         stack.append((pixel[0],pixel[1]-1))
 
 
@@ -339,7 +347,9 @@ def object_border(image, bounds):
                 dynamic_i_min = gradient[0]/scalar
                 dynamic_i_max = gradient[0]*scalar
                 #The gradient of the pixel in y direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]-1][pixel[1]] = True
+                lock.release()
                 if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[0] = new_gradient
@@ -357,7 +367,9 @@ def object_border(image, bounds):
                     else:
                         right_gradient = fixed_threshold+1
                     if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]-1][pixel[1]] = 1
+                        lock.release()
                         stack.append((pixel[0]-1,pixel[1]))
 
             #Check right pixel
@@ -367,7 +379,9 @@ def object_border(image, bounds):
                 dynamic_j_min = gradient[1]/scalar
                 dynamic_j_max = gradient[1]*scalar
                 #The gradient of the pixel in x direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]][pixel[1]+1] = True
+                lock.release()
                 if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[1] = new_gradient
@@ -386,8 +400,9 @@ def object_border(image, bounds):
                         bot_gradient = fixed_threshold+1
 
                     if right_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]][pixel[1]+1] = 1
-                        border = False
+                        lock.release()
                         stack.append((pixel[0],pixel[1]+1))
 
             #Check bottom pixel
@@ -397,7 +412,9 @@ def object_border(image, bounds):
                 dynamic_i_min = gradient[0]/scalar
                 dynamic_i_max = gradient[0]*scalar
                 #The gradient of the pixel in y direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]+1][pixel[1]] = True
+                lock.release()
                 if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[0] = new_gradient
@@ -416,7 +433,9 @@ def object_border(image, bounds):
                         right_gradient = fixed_threshold+1
 
                     if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]+1][pixel[1]] = 1
+                        lock.release()
                         stack.append((pixel[0]+1,pixel[1]))
 
             # check top left corner
@@ -428,7 +447,9 @@ def object_border(image, bounds):
                 dynamic_j_min = gradient[1]/scalar
                 dynamic_j_max = gradient[1]*scalar
                 #The gradient of the pixel in x and y direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]-1][pixel[1]-1] = True
+                lock.release()
                 if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[0] = new_gradient
@@ -449,7 +470,9 @@ def object_border(image, bounds):
                     bot_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
 
                     if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]-1][pixel[1]-1] = 1
+                        lock.release()
                         stack.append((pixel[0]-1,pixel[1]-1))
 
             # check top right corner
@@ -461,7 +484,9 @@ def object_border(image, bounds):
                 dynamic_j_min = gradient[1]/scalar
                 dynamic_j_max = gradient[1]*scalar
                 #The gradient of the pixel in x and y direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]-1][pixel[1]+1] = True
+                lock.release()
                 if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[0] = new_gradient
@@ -482,7 +507,9 @@ def object_border(image, bounds):
                     bot_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]][pixel[1]+1])
 
                     if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]-1][pixel[1]+1] = 1
+                        lock.release()
                         stack.append((pixel[0]-1,pixel[1]+1))
 
             # check bottom left corner
@@ -494,7 +521,9 @@ def object_border(image, bounds):
                 dynamic_j_min = gradient[1]/scalar
                 dynamic_j_max = gradient[1]*scalar
                 #The gradient of the pixel in x and y direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]+1][pixel[1]-1] = True
+                lock.release()
                 if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[0] = new_gradient
@@ -512,7 +541,9 @@ def object_border(image, bounds):
                     top_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
 
                     if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]+1][pixel[1]-1] = 1
+                        lock.release()
                         stack.append((pixel[0]+1,pixel[1]-1))
             # check bottom right corner
             if pixel[0] + 1 < h and pixel[1] + 1 < w and not check_gradient[pixel[0]+1][pixel[1]+1]:
@@ -523,7 +554,9 @@ def object_border(image, bounds):
                 dynamic_j_min = gradient[1]/scalar
                 dynamic_j_max = gradient[1]*scalar
                 #The gradient of the pixel in x and y direction was already checked
+                lock.acquire()
                 check_gradient[pixel[0]+1][pixel[1]+1] = True
+                lock.release()
                 if dynamic_i_min < new_gradient < dynamic_i_max or dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                     #The pixel is inside the gradient and respects or is below the fixed threshold
                     gradient[0] = new_gradient
@@ -544,10 +577,30 @@ def object_border(image, bounds):
                         top_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]][pixel[1]+1])
 
                     if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_gradient > fixed_threshold:
+                        lock.acquire()
                         result[pixel[0]+1][pixel[1]+1] = 1
+                        lock.release()
                         stack.append((pixel[0]+1,pixel[1]+1))
 
-    check_borders(top)
+    lock = threading.Lock()
+
+    #create threads
+    t1 = threading.Thread(target=check_borders, args=(lock, top))
+    t2 = threading.Thread(target=check_borders, args=(lock, bot))
+    t3 = threading.Thread(target=check_borders, args=(lock, left))
+    t4 = threading.Thread(target=check_borders, args=(lock, right))
+
+    #start threads
+    t1.start()
+    t2.start()
+    t3.start()
+    t4.start()
+
+    #wait for threads to finish
+    t1.join()
+    t2.join()
+    t3.join()
+    t4.join()
 
     return result
 
