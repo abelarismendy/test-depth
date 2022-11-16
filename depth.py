@@ -588,7 +588,7 @@ if __name__ == "__main__":
     # Import Depth Matrix
     data= np.loadtxt("src/depth/person1.csv", delimiter=",", skiprows=0, dtype=np.float32)
     t1 = time.time()
-    # img = segmentate_iterative(data, (0,0,240,320))
+    # img = segmentate(data, (0,0,240,320))
     img = object_border(data, (0,0,240,320))
     t2 = time.time()
     print(t2-t1)
