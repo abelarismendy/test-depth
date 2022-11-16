@@ -37,8 +37,8 @@ centro_mano = (173,251)
 #Monitor
 # centro_mano = (127,137)
 
-fixed_threshold = 200
-scalar = 2
+fixed_threshold = 13
+scalar = 1.67
 
 # fixed_threshold = 180
 # scalar = 2
@@ -279,8 +279,10 @@ def object_border(image, bounds):
 
     stack = []
     gradient = [0,0]
-    stack.append(top)
-    while len(stack) > 0:
+    stack.append(bot)
+    n = 0
+    while len(stack) > 0 and n < 100:
+        n += 1
         pixel = stack.pop()
         if pixel[0] + 1 < h and not check_gradient[pixel[0]+1][pixel[1]]:
             #The pixel is inside the bounds and has not been checked
@@ -322,9 +324,9 @@ def object_border(image, bounds):
                 if top_gradient > fixed_threshold or right_gradient > fixed_threshold or left_gradient > fixed_threshold or dynamic_top_min < top_gradient < dynamic_top_max or dynamic_right_min < right_gradient < dynamic_right_max or dynamic_left_min < left_gradient < dynamic_left_max:
                     result[pixel[0]+1][pixel[1]] = 1
                     stack.append((pixel[0]+1,pixel[1]))
-            else:
-                #The pixel is outside the gradient
-                result[pixel[0]+1][pixel[1]] = 0
+            # else:
+            #     #The pixel is outside the gradient
+            #     result[pixel[0]+1][pixel[1]] = 0
         if pixel[0] - 1 > y and not check_gradient[pixel[0]-1][pixel[1]]:
             #The pixel is inside the bounds and has not been checked
             dynamic_i_min = gradient[0]/scalar
@@ -365,9 +367,9 @@ def object_border(image, bounds):
                 if bot_gradient > fixed_threshold or right_gradient > fixed_threshold or left_gradient > fixed_threshold or dynamic_bot_min < bot_gradient < dynamic_bot_max or dynamic_right_min < right_gradient < dynamic_right_max or dynamic_left_min < left_gradient < dynamic_left_max:
                     result[pixel[0]-1][pixel[1]] = 1
                     stack.append((pixel[0]-1,pixel[1]))
-            else:
-                #The pixel is outside the gradient
-                result[pixel[0]-1][pixel[1]] = 0
+            # else:
+            #     #The pixel is outside the gradient
+            #     result[pixel[0]-1][pixel[1]] = 0
         if pixel[1] + 1 < w and not check_gradient[pixel[0]][pixel[1]+1]:
             #The pixel is inside the bounds and has not been checked
             dynamic_j_min = gradient[1]/scalar
@@ -407,9 +409,9 @@ def object_border(image, bounds):
                 if top_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_gradient > fixed_threshold or dynamic_top_min < top_gradient < dynamic_top_max or dynamic_right_min < right_gradient < dynamic_right_max or dynamic_bot_min < bot_gradient < dynamic_bot_max:
                     result[pixel[0]][pixel[1]+1] = 1
                     stack.append((pixel[0],pixel[1]+1))
-            else:
-                #The pixel is outside the gradient
-                result[pixel[0]][pixel[1]+1] = 0
+            # else:
+            #     #The pixel is outside the gradient
+            #     result[pixel[0]][pixel[1]+1] = 0
         if pixel[1] - 1 > x and not check_gradient[pixel[0]][pixel[1]-1]:
             #The pixel is inside the bounds and has not been checked
             dynamic_j_min = gradient[1]/scalar
@@ -450,9 +452,9 @@ def object_border(image, bounds):
                 if top_gradient > fixed_threshold or left_gradient > fixed_threshold or bot_gradient > fixed_threshold or dynamic_top_min < top_gradient < dynamic_top_max or dynamic_left_min < left_gradient < dynamic_left_max or dynamic_bot_min < bot_gradient < dynamic_bot_max:
                     result[pixel[0]][pixel[1]-1] = 1
                     stack.append((pixel[0],pixel[1]-1))
-            else:
-                #The pixel is outside the gradient
-                result[pixel[0]][pixel[1]-1] = 0
+            # else:
+            #     #The pixel is outside the gradient
+            #     result[pixel[0]][pixel[1]-1] = 0
 
     return result
 
