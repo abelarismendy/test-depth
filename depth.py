@@ -313,8 +313,7 @@ def object_border(image, bounds):
             if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 gradient[1] = new_gradient
-                # check the left, top and bottom pixels of the pixel to know if it is a border pixel
-                border = False
+                # check the left, top, bottom, top left and bot left pixels of the pixel to know if it is a border pixel
                 try:
                     left_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]][pixel[1]-2])
                 except:
@@ -330,8 +329,19 @@ def object_border(image, bounds):
                 except:
                     bot_gradient = 0
                     border = True
-                if left_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold or border:
+                try:
+                    top_left_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]-1][pixel[1]-2])
+                except:
+                    top_left_gradient = 0
+                    border = True
+                try:
+                    bot_left_gradient = abs(image[pixel[0]][pixel[1]-1] - image[pixel[0]+1][pixel[1]-2])
+                except:
+                    bot_left_gradient = 0
+                    border = True
+                if border or left_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold or top_left_gradient > fixed_threshold or bot_left_gradient > fixed_threshold:
                     result[pixel[0]][pixel[1]-1] = 1
+                    border = False
                     stack.append((pixel[0],pixel[1]-1))
 
 
@@ -346,8 +356,7 @@ def object_border(image, bounds):
             if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 gradient[0] = new_gradient
-                # check the top, left and right pixels of the pixel to know if it is a border pixel
-                border = False
+                # check the top, left, right, top left and top right pixels of the pixel to know if it is a border pixel
                 try:
                     top_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-2][pixel[1]])
                 except:
@@ -363,8 +372,19 @@ def object_border(image, bounds):
                 except:
                     right_gradient = 0
                     border = True
-                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or border:
+                try:
+                    top_left_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-2][pixel[1]-1])
+                except:
+                    top_left_gradient = 0
+                    border = True
+                try:
+                    top_right_gradient = abs(image[pixel[0]-1][pixel[1]] - image[pixel[0]-2][pixel[1]+1])
+                except:
+                    top_right_gradient = 0
+                    border = True
+                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or border or top_left_gradient > fixed_threshold or top_right_gradient > fixed_threshold:
                     result[pixel[0]-1][pixel[1]] = 1
+                    border = False
                     stack.append((pixel[0]-1,pixel[1]))
         
         #Check right pixel
@@ -378,8 +398,7 @@ def object_border(image, bounds):
             if dynamic_j_min < new_gradient < dynamic_j_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 gradient[1] = new_gradient
-                # check the right, top and bottom pixels of the pixel to know if it is a border pixel
-                border = False
+                # check the right, top, bot, bot left and bot right pixels of the pixel to know if it is a border pixel
                 try:
                     right_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]][pixel[1]+2])
                 except:
@@ -395,8 +414,19 @@ def object_border(image, bounds):
                 except:
                     bot_gradient = 0
                     border = True
-                if right_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold or border:
+                try:
+                    bot_left_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]+1][pixel[1]])
+                except:
+                    bot_left_gradient = 0
+                    border = True
+                try:
+                    bot_right_gradient = abs(image[pixel[0]][pixel[1]+1] - image[pixel[0]+1][pixel[1]+2])
+                except:
+                    bot_right_gradient = 0
+                    border = True
+                if right_gradient > fixed_threshold or top_gradient > fixed_threshold or bot_gradient > fixed_threshold or border or bot_left_gradient > fixed_threshold or bot_right_gradient > fixed_threshold:
                     result[pixel[0]][pixel[1]+1] = 1
+                    border = False
                     stack.append((pixel[0],pixel[1]+1))
 
         #Check bottom pixel
@@ -410,8 +440,7 @@ def object_border(image, bounds):
             if dynamic_i_min < new_gradient < dynamic_i_max or new_gradient < fixed_threshold:
                 #The pixel is inside the gradient and respects or is below the fixed threshold
                 gradient[0] = new_gradient
-                # check the bottom, left and right pixels of the pixel to know if it is a border pixel
-                border = False
+                # check the bottom, left, right, bot left and bot right pixels of the pixel to know if it is a border pixel
                 try:
                     bot_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+2][pixel[1]])
                 except:
@@ -427,8 +456,19 @@ def object_border(image, bounds):
                 except:
                     right_gradient = 0
                     border = True
-                if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or border:
+                try:
+                    bot_left_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+2][pixel[1]-1])
+                except:
+                    bot_left_gradient = 0
+                    border = True
+                try:
+                    bot_right_gradient = abs(image[pixel[0]+1][pixel[1]] - image[pixel[0]+2][pixel[1]+1])
+                except:
+                    bot_right_gradient = 0
+                    border = True
+                if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or border or bot_left_gradient > fixed_threshold or bot_right_gradient > fixed_threshold:
                     result[pixel[0]+1][pixel[1]] = 1
+                    border = False
                     stack.append((pixel[0]+1,pixel[1]))
 
         # check top left corner
@@ -446,7 +486,7 @@ def object_border(image, bounds):
                 gradient[0] = new_gradient
                 gradient[1] = new_gradient
                 # check the top, left, right, top right and top left pixels of the pixel to know if it is a border pixel
-                border = False
+
                 try:
                     top_gradient = abs(image[pixel[0]-1][pixel[1]-1] - image[pixel[0]-2][pixel[1]-1])
                 except:
@@ -474,6 +514,7 @@ def object_border(image, bounds):
                     border = True
                 if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_right_gradient > fixed_threshold or top_left_gradient > fixed_threshold or border:
                     result[pixel[0]-1][pixel[1]-1] = 1
+                    border = False
                     stack.append((pixel[0]-1,pixel[1]-1))
 
         # check top right corner
@@ -491,7 +532,6 @@ def object_border(image, bounds):
                 gradient[0] = new_gradient
                 gradient[1] = new_gradient
                 # check the top, left, right, top right and top left pixels of the pixel to know if it is a border pixel
-                border = False
                 try:
                     top_gradient = abs(image[pixel[0]-1][pixel[1]+1] - image[pixel[0]-2][pixel[1]+1])
                 except:
@@ -517,10 +557,14 @@ def object_border(image, bounds):
                 except:
                     top_left_gradient = 0
                     border = True
-                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_right_gradient:
+                if top_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or top_right_gradient > fixed_threshold or top_left_gradient > fixed_threshold or border:
                     # print("top right")
                     # print(top_gradient, left_gradient, right_gradient, top_right_gradient, top_left_gradient)
                     # print(pixel)
+                    # print(luc[pixel[0]][pixel[1]])
+                    # print(luc[pixel[0]-1][pixel[1]+1])
+                    # print(luc[pixel[0]-2][pixel[1]])
+                    border = False
                     result[pixel[0]-1][pixel[1]+1] = 1
                     stack.append((pixel[0]-1,pixel[1]+1))
 
@@ -539,7 +583,6 @@ def object_border(image, bounds):
                 gradient[0] = new_gradient
                 gradient[1] = new_gradient
                 # check the bot, left, right, bot right and bot left pixels of the pixel to know if it is a border pixel
-                border = False
                 try:
                     bot_gradient = abs(image[pixel[0]+1][pixel[1]-1] - image[pixel[0]][pixel[1]-1])
                 except:
@@ -567,6 +610,7 @@ def object_border(image, bounds):
                     border = True
                 if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_right_gradient > fixed_threshold or bot_left_gradient > fixed_threshold or border:
                     result[pixel[0]+1][pixel[1]-1] = 1
+                    border = False
                     stack.append((pixel[0]+1,pixel[1]-1))
         # check bottom right corner
         if pixel[0] + 1 < h and pixel[1] + 1 < w and not check_gradient[pixel[0]+1][pixel[1]+1]:
@@ -583,7 +627,6 @@ def object_border(image, bounds):
                 gradient[0] = new_gradient
                 gradient[1] = new_gradient
                 # check the bot, left, right, bot right and bot left pixels of the pixel to know if it is a border pixel
-                border = False
                 try:
                     bot_gradient = abs(image[pixel[0]+1][pixel[1]+1] - image[pixel[0]+2][pixel[1]+1])
                 except:
@@ -611,6 +654,7 @@ def object_border(image, bounds):
                     border = True
                 if bot_gradient > fixed_threshold or left_gradient > fixed_threshold or right_gradient > fixed_threshold or bot_right_gradient > fixed_threshold or bot_left_gradient > fixed_threshold or border:
                     result[pixel[0]+1][pixel[1]+1] = 1
+                    border = False
                     stack.append((pixel[0]+1,pixel[1]+1))
 
     return result
@@ -695,10 +739,11 @@ def segmentate_gpu(image, bounds):
                 result[pixel[0]][pixel[1]+1] = 0
     return result
 
+luc = np.loadtxt("src/depth/person1.csv", delimiter=",", skiprows=0, dtype=np.float32)
 
 if __name__ == "__main__":
     # Import Depth Matrix
-    data= np.loadtxt("src/depth/person1.csv", delimiter=",", skiprows=0)
+    data= np.loadtxt("src/depth/person1.csv", delimiter=",", skiprows=0, dtype=np.float32)
     t1 = time.time()
     # img = segmentate_iterative(data, (0,0,240,320))
     img = object_border(data, (0,0,240,320))
